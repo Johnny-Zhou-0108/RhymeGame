@@ -17,10 +17,14 @@ public class VisualManager : MonoBehaviour
 
     private int currentScore = 0;
     private List<GameObject> cubes = new List<GameObject>();
+    private bool stopVisuals = false;
+    private GameManager gameManager;
 
     void Start()
     {
         // Initialize the score text
+        gameManager = FindObjectOfType<GameManager>();
+
         if (scoreText != null)
         {
             scoreText.text = currentScore.ToString();
@@ -29,13 +33,31 @@ public class VisualManager : MonoBehaviour
 
     public void StartVisuals(double[] scheduledTimes)
     {
+        stopVisuals = false;
         StartCoroutine(GenerateAndControlCubes(scheduledTimes));
+    }
+
+    public void StopVisuals()
+    {
+        stopVisuals = true;
+        StopAllCoroutines(); // Stop all coroutines to halt current visual processes
+        // Destroy remaining cubes
+        foreach (var cube in cubes)
+        {
+            if (cube != null)
+            {
+                Destroy(cube);
+            }
+        }
+        cubes.Clear();
     }
 
     IEnumerator GenerateAndControlCubes(double[] scheduledTimes)
     {
         for (int i = 0; i < scheduledTimes.Length; i++)
         {
+            if (stopVisuals) yield break;
+
             double playTime = scheduledTimes[i];
             float fallDuration = CalculateFallDuration();
 
@@ -47,6 +69,8 @@ public class VisualManager : MonoBehaviour
             {
                 yield return new WaitForSeconds((float)delay);
             }
+
+            if (stopVisuals) yield break;
 
             GameObject cube = Instantiate(cubePrefab, initialPosition, Quaternion.identity);
             cube.name = "Cube" + i; // Name the cube with its index
@@ -73,11 +97,13 @@ public class VisualManager : MonoBehaviour
     {
         while (cube != null && cube.transform.position.y > baselineY - perfectHitDistance)
         {
+            if (stopVisuals) yield break;
+
             cube.transform.position += Vector3.down * fallSpeed * Time.deltaTime;
             yield return null;
         }
 
-        if (cube != null)
+        if (cube != null && !stopVisuals)
         {
             AddScore(missHitScore);
             Debug.Log($"Missed cube! Deducting score for cube: {cube.name}");
@@ -85,6 +111,8 @@ public class VisualManager : MonoBehaviour
             float fallBelowTime = 0f;
             while (cube != null && fallBelowTime < extraFallTime)
             {
+                if (stopVisuals) yield break;
+
                 cube.transform.position += Vector3.down * fallSpeed * Time.deltaTime;
                 fallBelowTime += Time.deltaTime;
                 yield return null;
@@ -133,6 +161,7 @@ public class VisualManager : MonoBehaviour
     private void AddScore(int points)
     {
         currentScore += points;
+        gameManager.AddScore(points); // Notify GameManager of the score change
         if (scoreText != null)
         {
             scoreText.text = currentScore.ToString();

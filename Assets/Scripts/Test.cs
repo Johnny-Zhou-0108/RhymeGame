@@ -4,6 +4,7 @@ public class Test : MonoBehaviour
 {
     public AudioManager audioManager;
     public VisualManager visualManager;
+    public GameManager gameManager; // Reference to the GameManager to reset the score
 
     void Update()
     {
@@ -20,6 +21,14 @@ public class Test : MonoBehaviour
             audioManager.LoadAndStartRemix();
             // Optionally, you can debug the array
             Debug.Log("PlayScheduledTimes: [" + string.Join(", ", audioManager.GetPlayScheduledTimes()) + "]");
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            // Stop the current remix and visuals and zero out the score
+            audioManager.StopRemix();
+            visualManager.StopVisuals();
+            //gameManager.ResetScore();
         }
     }
 }

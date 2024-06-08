@@ -44,6 +44,11 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public void StopRemix()
+    {
+        StopCurrentRemix(); // Stop the current remix if it's running
+    }
+
     void StopCurrentRemix()
     {
         if (currentRemixCoroutine != null)
