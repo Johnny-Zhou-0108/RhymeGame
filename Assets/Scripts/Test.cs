@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
+    // not using now
     public AudioManager audioManager;
     public VisualManager visualManager;
     public GameManager gameManager; // Reference to the GameManager to reset the score

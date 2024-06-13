@@ -17,6 +17,7 @@ public class AudioManager : MonoBehaviour
     private List<AudioSource> audioSourcePool = new List<AudioSource>(); // List to store pooled AudioSource instances
     private Coroutine currentRemixCoroutine;
     private int poolSize = 10; // Adjust the pool size based on your needs
+    private bool isRemixFinished = false; // Flag to track if the remix is finished
 
     void Start()
     {
@@ -36,6 +37,7 @@ public class AudioManager : MonoBehaviour
         if (loadedClips != null && loadedClips.Length > 0)
         {
             GeneratePlayScheduledTimes();
+            isRemixFinished = false; // Reset the remix finished flag
             currentRemixCoroutine = StartCoroutine(RemixAudio()); // Start the remix coroutine
         }
         else
@@ -71,7 +73,7 @@ public class AudioManager : MonoBehaviour
     void LoadRandomAudioClips()
     {
         AudioClip[] allClips = Resources.LoadAll<AudioClip>(audioFolderPath);
-        Debug.Log("Found " + allClips.Length + " clips in the specified folder: " + audioFolderPath);
+        //Debug.Log("Found " + allClips.Length + " clips in the specified folder: " + audioFolderPath);
 
         if (allClips.Length == 0)
         {
@@ -85,7 +87,7 @@ public class AudioManager : MonoBehaviour
         for (int i = 0; i < clipsToLoad; i++)
         {
             loadedClips[i] = allClips[Random.Range(0, allClips.Length)];
-            Debug.Log("Loaded clip: " + loadedClips[i].name);
+            //Debug.Log("Loaded clip: " + loadedClips[i].name);
         }
     }
 
@@ -132,6 +134,8 @@ public class AudioManager : MonoBehaviour
             // Ensure there's enough time between scheduled plays
             yield return new WaitForSeconds(remixFrequency);
         }
+
+        isRemixFinished = true; // Set the remix finished flag when done
     }
 
     AudioSource GetAvailableAudioSource()
@@ -150,5 +154,11 @@ public class AudioManager : MonoBehaviour
     public double[] GetPlayScheduledTimes()
     {
         return playScheduledTimes.ToArray();
+    }
+
+    // Method to check if the remix is finished
+    public bool IsRemixFinished()
+    {
+        return isRemixFinished;
     }
 }

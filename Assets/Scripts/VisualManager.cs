@@ -15,19 +15,15 @@ public class VisualManager : MonoBehaviour
     public int perfectHitScore = 10; // Score for a perfect hit
     public int missHitScore = -10; // Score deduction for a miss
 
-    private int currentScore = 0;
     private List<GameObject> cubes = new List<GameObject>();
     private bool stopVisuals = false;
-    private GameManager gameManager;
 
     void Start()
     {
         // Initialize the score text
-        gameManager = FindObjectOfType<GameManager>();
-
         if (scoreText != null)
         {
-            scoreText.text = currentScore.ToString();
+            scoreText.text = GameManager.Instance.GetScore().ToString();
         }
     }
 
@@ -105,8 +101,8 @@ public class VisualManager : MonoBehaviour
 
         if (cube != null && !stopVisuals)
         {
-            AddScore(missHitScore);
-            Debug.Log($"Missed cube! Deducting score for cube: {cube.name}");
+            GameManager.Instance.AddScore(missHitScore);
+            //Debug.Log($"Missed cube! Deducting score for cube: {cube.name}");
 
             float fallBelowTime = 0f;
             while (cube != null && fallBelowTime < extraFallTime)
@@ -120,7 +116,7 @@ public class VisualManager : MonoBehaviour
 
             if (cube != null)
             {
-                Debug.Log($"Missed cube! Destroying cube: {cube.name}");
+                //Debug.Log($"Missed cube! Destroying cube: {cube.name}");
                 cubes.Remove(cube);
                 Destroy(cube);
             }
@@ -146,26 +142,23 @@ public class VisualManager : MonoBehaviour
 
         if (closestCube != null && closestDistance <= perfectHitDistance)
         {
-            AddScore(perfectHitScore);
-            Debug.Log($"Perfect hit! Destroying cube: {closestCube.name}");
+            GameManager.Instance.AddScore(perfectHitScore);
+            //Debug.Log($"Perfect hit! Destroying cube: {closestCube.name}");
             cubes.Remove(closestCube);
             Destroy(closestCube);
         }
         else
         {
-            AddScore(missHitScore);
-            Debug.Log($"Miss hit! Deducting score for cube: {closestCube?.name}");
+            GameManager.Instance.AddScore(missHitScore);
+            //Debug.Log($"Miss hit! Deducting score for cube: {closestCube?.name}");
         }
     }
 
-    private void AddScore(int points)
+    public void UpdateScoreText(int newScore)
     {
-        currentScore += points;
-        gameManager.AddScore(points); // Notify GameManager of the score change
         if (scoreText != null)
         {
-            scoreText.text = currentScore.ToString();
+            scoreText.text = newScore.ToString();
         }
-        Debug.Log($"Current score: {currentScore}");
     }
 }
